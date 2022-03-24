@@ -12,8 +12,7 @@ class NikeScrape():
         self.browser = browser
         self.dbEngine = dbEngine
 
-        self.SCROLL_PAUSE_TIME = 2.5
-        self.IMAGE_LOAD_TIME = 3
+        self.SCROLL_PAUSE_TIME = 5
 
         self.product_categories = []
         self.products = []
@@ -39,7 +38,7 @@ class NikeScrape():
                 'id': category_id
             }
             self.product_categories.append(product_category)
-
+            print(f'---{product_category["id"]} {product_category["name"]}---')
             category_id += 1
 
     def get_products(self):
@@ -73,7 +72,7 @@ class NikeScrape():
                     'long_description': None
                 }
                 self.products.append(p)
-
+                print(f'---{p["id"]} {p["name"]}---')
                 p_count += 1
 
     def scroll(self):
@@ -121,7 +120,8 @@ class NikeScrape():
                 for style in styles:
                     # open different styles
                     self.browser.get(style.get('href'))
-                    time.sleep(self.IMAGE_LOAD_TIME)
+                    self.scroll()
+
                     style_soup = BeautifulSoup(self.browser.page_source)
                     color = style_soup.find_all(
                         'li', class_='description-preview__color-description')[0].get_text()
@@ -136,6 +136,7 @@ class NikeScrape():
                         'style_name': style_processed
                     }
                     self.product_styles.append(ps)
+                    print(f'---{ps["id"]} {ps["colour"]} {ps["style_name"]}---')
 
                     self.get_product_images(style_soup, product_style_id)
 
@@ -148,7 +149,7 @@ class NikeScrape():
         for image in product_images:
             picture_tag = image.find_all('picture')[1]
             img_tag = picture_tag.find_all('img')[0]
-            print(img_tag)
+            # print(img_tag)
             if img_tag.has_attr('src'):
                 img_url = img_tag['src']
                 product_image = {
@@ -157,12 +158,8 @@ class NikeScrape():
                     'image_url': img_url
                 }
                 self.product_images.append(product_image)
-
-    def print_data(self):
-        pprint(self.product_categories)
-        pprint(self.products)
-        pprint(self.product_styles)
-        pprint(self.product_images)
+                print(f'---{product_image["id"]} {product_image["image_url"]}---')
+                self.product_image_id += 1
 
     def save_to_db(self):
         df_product_categories = pd.DataFrame(self.product_categories)

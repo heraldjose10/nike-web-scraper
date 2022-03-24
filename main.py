@@ -22,7 +22,6 @@ if __name__ == '__main__':
     nike_scrape.get_categories()
     nike_scrape.get_products()
     nike_scrape.get_product_styles()
-    nike_scrape.print_data()
 
     nike_scrape.save_to_db()
 
